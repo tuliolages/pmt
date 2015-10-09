@@ -3,6 +3,17 @@
 #include <getopt.h>
 #include <string.h>
 
+typedef struct program_args program_args;
+
+struct program_args {
+  int allowed_edit_distance;
+  char* pattern_file;
+  program_args() {
+    this.allowed_edit_distance = 100;
+    pattern_file = 0;
+  }
+};
+
 /* Flag set by ‘--help' or '-h’. */
 static int help_flag;
 
@@ -12,7 +23,51 @@ static int edit_value;
 
 /* Flag set by ‘--pattern' or '-p’. */
 static int pattern_flag;
-// static char pattern_file[];
+static char* pattern_file;
+
+program_args get_program_parameters(int argc, char** argv) {
+  int option_index;
+  int current_parameter;
+  int edit_distance = 0;
+  char* pattern_file = 0;
+  program_args args;
+
+  struct option long_options[] =
+    {
+      {"edit",    required_argument, 0, 'e'},
+      {"pattern", required_argument, 0, 'p'},
+      {"help",    no_argument,       0, 'h'},
+      {0, 0, 0, 0}
+    };
+
+  while (1) {
+    current_parameter = getopt_long(argc, argv, "e:p:h", long_options, &option_index);
+
+    if (current_parameter == -1) {
+      break;
+    }
+
+    switch (current_parameter) {
+      case 0:
+        break;
+      case 'e':
+        edit_distance = atoi(optarg);
+        break;
+      case 'p':
+        pattern_file = optarg;
+        break;
+      case 'h':
+        
+        break;
+      case '?':
+        break;
+      default:
+        abort();
+    }
+  }
+
+  return args;
+}
 
 int main (int argc, char **argv)
 {
@@ -60,7 +115,8 @@ int main (int argc, char **argv)
         case 'p':
           pattern_flag = 1;
           // TODO salvar string optarg
-          printf ("option -p with value `%s'\n", optarg);
+          pattern_file = optarg;
+          printf ("option -p with value `%s'\n", pattern_file);
           break;
 
         case 'h':
