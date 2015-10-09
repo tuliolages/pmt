@@ -7,3 +7,9 @@ TODO:
 	-algoritmos de busca exata e aproximada
 	-separar em .c e .h
 	-fazer doc de --help
+
+Por enquanto, para rodar:
+	-cd até src
+	-gcc -o pmt pmt.c -I .
+
+Aí dá para rodar comandos como tem na especificação do projeto, ex: ./pmt "oi" arq1 arq2
