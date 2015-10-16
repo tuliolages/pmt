@@ -91,42 +91,53 @@ program_args get_program_parameters(int argc, char** argv) {
   return args;
 }
 
+void print_help_text() {
+  cout << "Usage: pmt [options] [pattern] <textfilepath> [moretextfiles]" << endl;
+  cout << "Options:" << endl;
+  cout << "  -e <edit distance>\t\tSets allowed edit distance for approximated text search" << endl;
+  cout << "  --edit=<edit distance>\tSame as previous option" << endl;
+  cout << "  -p <pattern file>\t\tSpecifies file from which the program should read the patterns to be used (each line of the file specifies a pattern)" << endl;
+  cout << "  --pattern=<pattern file>\tSame as previous option" << endl;
+  cout << "  -h\t\t\t\tShows this message" << endl;
+  cout << "  --help\t\t\tSame as previous option" << endl;
+  cout << endl << "  If a pattern file is not specified, the first argument given to pmt will be read as the only pattern to be searched for in the text file. Several source text files can be specified at the same time." << endl;
+}
+
 int main (int argc, char **argv) {
   program_args args = get_program_parameters(argc, argv);
 
   if (args.help_flag) {
-    cout << "HELP: Olhe a documentacao";
-    return 0;
-  }
-
-  cout << "Modo de busca: ";
-
-  if (args.allowed_edit_distance > 0) {
-    cout << "aproximada (distancia máxima = " << args.allowed_edit_distance << ")" << endl;
+    print_help_text();
   } else {
-    cout << "exata" << endl;
-  }
+    cout << "Modo de busca: ";
 
-  if (args.pattern_file) {
-    cout << "Arquivo de padrões: " << args.pattern_file << endl;
-  } else {
-    cout << "Nenhum arquivo de padrões foi fornecido." << endl;
-
-    if (!args.patterns) {
-      cout << "Nenhum padrão foi fornecido." << endl;
-      exit(1);
+    if (args.allowed_edit_distance > 0) {
+      cout << "aproximada (distancia máxima = " << args.allowed_edit_distance << ")" << endl;
     } else {
-      cout << "Padrões fornecidos:" << endl;
-      for (int i = 0; args.patterns[i]; i++) {
-        cout << "  " << args.patterns[i] << endl;
+      cout << "exata" << endl;
+    }
+
+    if (args.pattern_file) {
+      cout << "Arquivo de padrões: " << args.pattern_file << endl;
+    } else {
+      cout << "Nenhum arquivo de padrões foi fornecido." << endl;
+
+      if (!args.patterns) {
+        cout << "Nenhum padrão foi fornecido." << endl;
+        exit(1);
+      } else {
+        cout << "Padrões fornecidos:" << endl;
+        for (int i = 0; args.patterns[i]; i++) {
+          cout << "  " << args.patterns[i] << endl;
+        }
       }
     }
-  }
 
-  if (args.source_text_files) {
-    cout << "Arquivos de texto a serem buscados:" << endl;
-    for (int i = 0; args.source_text_files[i]; i++) {
-      cout << "  " << args.source_text_files[i] << endl;
+    if (args.source_text_files) {
+      cout << "Arquivos de texto a serem buscados:" << endl;
+      for (int i = 0; args.source_text_files[i]; i++) {
+        cout << "  " << args.source_text_files[i] << endl;
+      }
     }
   }
 
