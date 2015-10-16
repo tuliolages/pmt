@@ -1,6 +1,7 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <iostream>
+#include <iomanip>
 
 #include "utils.h"
 
@@ -50,7 +51,7 @@ program_args get_program_parameters(int argc, char** argv) {
       // Um argumento desconhecido é apenas ignorado no momento
       break;
       default:
-      abort();
+      exit(1);
     }
   }
 
@@ -81,14 +82,15 @@ program_args get_program_parameters(int argc, char** argv) {
   return args;
 }
 
+void print_help_line(char const *msg1, char const *msg2) {
+  cout << left << setw(35) << msg1 << setw(45) << msg2 << endl;
+}
+
 void print_help_text() {
-  cout << "Usage: pmt [options] [pattern] <textfilepath> [moretextfiles]" << endl;
+  cout << "Usage: pmt [options] [pattern] textfilepath [textfilepath ...]" << endl;
   cout << "Options:" << endl;
-  cout << "  -e <edit distance>\t\tSets allowed edit distance for approximated text search" << endl;
-  cout << "  --edit=<edit distance>\tSame as previous option" << endl;
-  cout << "  -p <pattern file>\t\tSpecifies file from which the program should read the patterns to be used (each line of the file specifies a pattern)" << endl;
-  cout << "  --pattern=<pattern file>\tSame as previous option" << endl;
-  cout << "  -h\t\t\t\tShows this message" << endl;
-  cout << "  --help\t\t\tSame as previous option" << endl;
+  print_help_line("  -e, --edit=<edit distance>", "Sets allowed edit distance for approximated text search");
+  print_help_line("  -p, --pattern=<pattern file>","Specifies file from which the program should read the patterns to be used (each line of the file specifies a pattern)");
+  print_help_line("  -h, --help","Shows this message");
   cout << endl << "  If a pattern file is not specified, the first argument given to pmt will be read as the only pattern to be searched for in the text file. Several source text files can be specified at the same time." << endl;
 }

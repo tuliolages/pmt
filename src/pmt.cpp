@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "utils.h"
+#include "input/FileReader.h"
 
 using namespace std;
 
@@ -28,7 +29,7 @@ int main (int argc, char **argv) {
       cout << "Nenhum arquivo de padrões foi fornecido." << endl;
 
       if (!args.patterns) {
-        cout << "Nenhum padrão foi fornecido." << endl;
+        cerr << "Nenhum padrão foi fornecido." << endl;
         exit(1);
       } else {
         cout << "Padrões fornecidos:" << endl;
@@ -44,7 +45,7 @@ int main (int argc, char **argv) {
         cout << "  " << args.source_text_files[i] << endl;
       }
     }
-  }
 
-  exit (0);
+    exit (0);
+  }
 }
