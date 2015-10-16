@@ -1,3 +1,5 @@
 *.o
 *.bat
+*.gch
 bin/
+obj/
