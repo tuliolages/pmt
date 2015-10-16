@@ -1,6 +1,9 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <iostream>
+#include <glob.h>
+#include <stdio.h>
+#include <cstring>
 
 #include "utils.h"
 
@@ -75,6 +78,9 @@ program_args get_program_parameters(int argc, char** argv) {
       }
 
       args.source_text_files[i] = 0;
+      
+      match_files(i, args.source_text_files);
+
     }
   }
 
@@ -91,4 +97,45 @@ void print_help_text() {
   cout << "  -h\t\t\t\tShows this message" << endl;
   cout << "  --help\t\t\tSame as previous option" << endl;
   cout << endl << "  If a pattern file is not specified, the first argument given to pmt will be read as the only pattern to be searched for in the text file. Several source text files can be specified at the same time." << endl;
+}
+
+/* globerr --- print error message for glob() */
+
+int glob_error(const char *path, int eerrno)
+{
+  fprintf(stderr, "pmt: %s: %s\n", path, strerror(eerrno));
+  return 0; /* let glob() keep going */
+}
+
+/* 
+ * match_files --- updates source_text_files with every file
+ * whose name matches with one or more of the given filenames
+ */
+
+int match_files(int files_index, char **source_text_files)
+{
+  int i;
+  int flags = 0;
+  glob_t results;
+  int ret;
+
+  for (i = 0; i < files_index; i++) {
+    flags |= (i > 0 ? GLOB_APPEND : 0);
+    ret = glob(source_text_files[i], flags, glob_error, & results);
+    if (ret != 0) {
+      /* todo arquivo que ele ou não achar ou der algum pau é printado aqui. uso cout? */
+      fprintf(stderr, "pmt: problem with %s (%s), stopping early\n",
+        source_text_files[i],
+        (ret == GLOB_ABORTED ? "filesystem problem" :
+         ret == GLOB_NOMATCH ? "no match of pattern" :
+         ret == GLOB_NOSPACE ? "no dynamic memory" :
+         "unknown problem"));
+      break;
+    }
+  }
+
+  /* source_text_files = results.gl_pathv; ????????????? gl_pathv contem os arquivos que ele conseguiu ler sem erro. */
+   
+  globfree(& results);
+  return 0;
 }

@@ -9,3 +9,5 @@ struct program_args {
 
 program_args get_program_parameters(int argc, char** argv);
 void print_help_text();
+int glob_error(const char *path, int eerrno);
+int match_files(int files_index, char **source_text_files);
