@@ -77,9 +77,9 @@ program_args get_program_parameters(int argc, char** argv) {
         args.source_text_files[i++] = argv[optind++];
       }
 
-      args.source_text_files[i] = 0;
+      //args.source_text_files[i] = 0;
       
-      match_files(i, args.source_text_files);
+      args.source_text_files = match_files(i, args.source_text_files);
 
     }
   }
@@ -112,18 +112,19 @@ int glob_error(const char *path, int eerrno)
  * whose name matches with one or more of the given filenames
  */
 
-int match_files(int files_index, char **source_text_files)
+char** match_files(int files_index, char **source_text_files)
 {
   int i;
   int flags = 0;
   glob_t results;
   int ret;
+  int results_size;
+  char** resulting_text_files;
 
   for (i = 0; i < files_index; i++) {
     flags |= (i > 0 ? GLOB_APPEND : 0);
     ret = glob(source_text_files[i], flags, glob_error, & results);
     if (ret != 0) {
-      /* todo arquivo que ele ou não achar ou der algum pau é printado aqui. uso cout? */
       fprintf(stderr, "pmt: problem with %s (%s), stopping early\n",
         source_text_files[i],
         (ret == GLOB_ABORTED ? "filesystem problem" :
@@ -133,9 +134,22 @@ int match_files(int files_index, char **source_text_files)
       break;
     }
   }
+  
+  results_size = results.gl_pathc+1;
+  resulting_text_files = new char *[results_size];
 
-  /* source_text_files = results.gl_pathv; ????????????? gl_pathv contem os arquivos que ele conseguiu ler sem erro. */
-   
+  for (i = 0; i < results_size-1; i++) {
+    strcpy(resulting_text_files[i], results.gl_pathv[i]);
+    printf("%s - %s\n", results.gl_pathv[i], resulting_text_files[i]);
+  }
+
+  resulting_text_files[results_size-1] = '\0';
+
   globfree(& results);
-  return 0;
+
+  for (i = 0; i < results_size-1; i++) {
+    printf("%s\n", resulting_text_files[i]);
+  }
+
+  return resulting_text_files;
 }
