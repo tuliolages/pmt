@@ -51,7 +51,7 @@ program_args get_program_parameters(int argc, char** argv) {
       // Um argumento desconhecido é apenas ignorado no momento
       break;
       default:
-      abort();
+      exit(1);
     }
   }
 
