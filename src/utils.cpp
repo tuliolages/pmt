@@ -4,6 +4,9 @@
 #include <glob.h>
 #include <stdio.h>
 #include <cstring>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "utils.h"
 
@@ -97,10 +100,15 @@ void print_help_text() {
   cout << endl << "  If a pattern file is not specified, the first argument given to pmt will be read as the only pattern to be searched for in the text file. Several source text files can be specified at the same time." << endl;
 }
 
+int is_regular_file(const char *path) {
+    struct stat path_stat;
+    stat(path, &path_stat);
+    return S_ISREG(path_stat.st_mode);
+}
+
 /* globerr --- print error message for glob() */
 
-int glob_error(const char *path, int eerrno)
-{
+int glob_error(const char *path, int eerrno) {
   fprintf(stderr, "pmt: %s: %s\n", path, strerror(eerrno));
   return 0; /* let glob() keep going */
 }
@@ -111,8 +119,7 @@ int glob_error(const char *path, int eerrno)
  * filenames
  */
 
-void search_files(char **source_text_files)
-{
+void search_files(char **source_text_files) {
   int i;
   int flags = 0;
   glob_t results;
@@ -131,7 +138,12 @@ void search_files(char **source_text_files)
     } else {
       for (int i = 0; i < results.gl_pathc; ++i) {
         // Check if it really is a file
-        printf("%s\n", results.gl_pathv[i]);
+        if (is_regular_file(results.gl_pathv[i])) {
+          cout << results.gl_pathv[i] << endl;  
+        } else {
+          cout << results.gl_pathv[i] << " isn't a regular file" << endl;
+        }
+        
         // call search algorithm
       }
     }
