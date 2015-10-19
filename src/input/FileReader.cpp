@@ -18,6 +18,7 @@ FileReader::~FileReader() {
 	this->fileStream->close();
 
 	delete this->fileStream;
+	delete this->buffer;
 }
 
 char* FileReader::read() {
