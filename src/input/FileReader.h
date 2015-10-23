@@ -2,7 +2,7 @@
 
 class FileReader {
 public:
-	FileReader(char *filePath, int maxBytes=1024);
+	FileReader(char *filePath, int maxBytes=1048576);
 	~FileReader();
 	char* read();
 	bool hasContent();

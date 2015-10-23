@@ -41,7 +41,7 @@ int main (int argc, char **argv) {
 
     if (args.source_text_files) {
       cout << "Arquivos de texto a serem buscados:" << endl;
-      search_files(args.source_text_files);
+      search_files(args);
     }
 
     exit (0);
