@@ -1,0 +1,6 @@
+*.o
+*.bat
+*.sh
+*.gch
+bin/
+obj/
