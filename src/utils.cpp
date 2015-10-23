@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
+#include <glob.h>
+#include <stdio.h>
+#include <cstring>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "utils.h"
 
@@ -78,7 +84,8 @@ program_args get_program_parameters(int argc, char** argv) {
   }
 
   if (optind < argc) {
-    /* If pattern_flag is set, then the remaining arguments
+    /* Legacy text
+    If pattern_flag is set, then the remaining arguments
     are target textfiles. Otherwise, the first one will be
     the pattern string*/
     if (!args.pattern_file) {
@@ -115,4 +122,56 @@ void print_help_text() {
   print_help_line("  -p, --pattern=<pattern file>","Specifies file from which the program should read the patterns to be used (each line of the file specifies a pattern)");
   print_help_line("  -h, --help","Shows this message");
   cout << endl << "  If a pattern file is not specified, the first argument given to pmt will be read as the only pattern to be searched for in the text file. Several source text files can be specified at the same time." << endl;
+}
+
+int is_regular_file(const char *path) {
+    struct stat path_stat;
+    stat(path, &path_stat);
+    return S_ISREG(path_stat.st_mode);
+}
+
+/* globerr --- print error message for glob() */
+
+int glob_error(const char *path, int eerrno) {
+  fprintf(stderr, "pmt: %s: %s\n", path, strerror(eerrno));
+  return 0; /* let glob() keep going */
+}
+
+/* 
+ * search_files --- searches source_text_files entries
+ * whose name matches with one or more of the given 
+ * filenames
+ */
+
+void search_files(char **source_text_files) {
+  int i;
+  int flags = 0;
+  glob_t results;
+  int ret;
+
+  for (i = 0; source_text_files[i]; i++) {
+    ret = glob(source_text_files[i], flags, glob_error, & results);
+    if (ret != 0) {
+      fprintf(stderr, "pmt: problem with %s (%s)\n",
+        source_text_files[i],
+        (ret == GLOB_ABORTED ? "filesystem problem" :
+         ret == GLOB_NOMATCH ? "no match of pattern" :
+         ret == GLOB_NOSPACE ? "no dynamic memory" :
+         "unknown problem"));
+      // continues even if it spots a problem
+    } else {
+      for (int i = 0; i < results.gl_pathc; ++i) {
+        // Check if it really is a file
+        if (is_regular_file(results.gl_pathv[i])) {
+          cout << results.gl_pathv[i] << endl;  
+        } else {
+          cout << results.gl_pathv[i] << " isn't a regular file" << endl;
+        }
+        
+        // call search algorithm
+      }
+    }
+  }
+
+  globfree(& results);
 }
