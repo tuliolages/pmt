@@ -14,6 +14,28 @@ program_args::program_args()
     help_flag(false),
     source_text_files(0) { }
 
+program_args::~program_args() {
+  if (this->pattern_file != NULL) {
+    delete this->pattern_file;
+  }
+
+  if (this->patterns != NULL) {
+    for (int i = 0; this->patterns[i]; i++) {
+      delete this->patterns[i];
+    }
+
+    delete this->patterns;
+  }
+
+  if (this->source_text_files != NULL) {
+    for (int i = 0; this->source_text_files[i]; i++) {
+      delete this->source_text_files[i];
+    }
+
+    delete this->source_text_files;
+  }
+}
+
 program_args get_program_parameters(int argc, char** argv) {
   int option_index;
   int current_parameter;
