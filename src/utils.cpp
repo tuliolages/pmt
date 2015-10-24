@@ -11,7 +11,10 @@
 #include <vector>
 
 #include "utils.h"
+#include "search/ApproximateSearchStrategy.h"
 #include "search/Sellers.h"
+#include "search/ExactSearchStrategy.h"
+#include "search/KnuthMorrisPratt.h"
 #include "search/Occurrence.h"
 #include "input/FileReader.h"
 
@@ -168,13 +171,13 @@ void search_files(program_args &args) {
 
         // call search algorithm
         if (args.allowed_edit_distance) { // approximate search
-          Sellers sellers(args.allowed_edit_distance);
+          ApproximateSearchStrategy* searchStrategy = new Sellers(args.allowed_edit_distance);
           vector<Occurrence> result;
 
           for (int j = 0; j < args.patterns.size(); j++) {
-            result = sellers.search(args.patterns[j], results.gl_pathv[i]);
+            result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[j] << ":" << endl;
+            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }
@@ -183,21 +186,25 @@ void search_files(program_args &args) {
                 ", ending at position " << result[k].position << " with error " << result[k].error << endl;
             }
           }
+
+          delete searchStrategy;
         } else { // exact search
-          Sellers sellers(args.allowed_edit_distance); //TODO: substituir esse pelos de exatas!
+          ExactSearchStrategy* searchStrategy = new KnuthMorrisPratt();
           vector<Occurrence> result;
 
-          for (int j = 0; args.patterns[j]; j++) {
-            result = sellers.search(args.patterns[j], results.gl_pathv[i]);
+          for (int j = 0; j < args.patterns.size(); j++) {
+            result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[j] << ":" << endl;
+            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }
             for (int k = 0; k < result.size(); k++) {
-              cout << "Occurrence at line " << result[k].lineNumber << ", position " << result[k].position << endl;
+              cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
             }
           }
+
+          delete searchStrategy;
         }
       }
     }

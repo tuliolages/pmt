@@ -7,6 +7,7 @@ class FileReader {
 public:
 	FileReader(char *filePath, int maxBytes=1048576);
 	~FileReader();
+	char* read(char* buffer, int bytes);
 	char* read();
 	bool hasContent();
 	char* readLine();
