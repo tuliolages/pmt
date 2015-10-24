@@ -13,18 +13,18 @@
 #include "utils.h"
 #include "search/Sellers.h"
 #include "search/Occurrence.h"
+#include "input/FileReader.h"
 
 using namespace std;
 
 program_args::program_args()
   : allowed_edit_distance(0),
     pattern_file(0),
-    patterns(0),
     help_flag(false),
     source_text_files(0) { }
 
 program_args::~program_args() {
-  
+
 }
 
 program_args get_program_parameters(int argc, char** argv) {
@@ -74,9 +74,7 @@ program_args get_program_parameters(int argc, char** argv) {
     are target textfiles. Otherwise, the first one will be
     the pattern string*/
     if (!args.pattern_file) {
-      args.patterns = new char*[2];
-      args.patterns[0] = argv[optind++];
-      args.patterns[1] = 0;
+      args.patterns.push_back(argv[optind++]);
     }
 
     if (optind < argc) {
@@ -122,13 +120,28 @@ int glob_error(const char *path, int eerrno) {
   return 0; /* let glob() keep going */
 }
 
+void read_pattern_file(program_args &args) {
+  FileReader fr(args.pattern_file);
+  char* buffer;
+
+  while(fr.hasContent()) {
+    buffer = fr.readLine();
+
+    if (buffer[0] != '\0') {
+      args.patterns.push_back(buffer);
+    } else {
+      delete buffer;
+    }
+  }
+}
+
 /*
  * search_files --- searches source_text_files entries
  * whose name matches with one or more of the given
  * filenames
  */
 
-void search_files(program_args args) {
+void search_files(program_args &args) {
   int i;
   int flags = 0;
   glob_t results;
@@ -158,10 +171,10 @@ void search_files(program_args args) {
           Sellers sellers(args.allowed_edit_distance);
           vector<Occurrence> result;
 
-          for (int j = 0; args.patterns[j]; j++) {
+          for (int j = 0; j < args.patterns.size(); j++) {
             result = sellers.search(args.patterns[j], results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[i] << ":" << endl;
+            cout << "For pattern " << args.patterns[j] << ":" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }
@@ -177,7 +190,7 @@ void search_files(program_args args) {
           for (int j = 0; args.patterns[j]; j++) {
             result = sellers.search(args.patterns[j], results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[i] << ":" << endl;
+            cout << "For pattern " << args.patterns[j] << ":" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }

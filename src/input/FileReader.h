@@ -1,3 +1,6 @@
+#ifndef FILEREADER_H
+#define FILEREADER_H
+
 #include <fstream>
 
 class FileReader {
@@ -10,9 +13,11 @@ public:
 
 	int lineCount;
 	int currentReadingPosition;
-	char* buffer;
 	int bufferSize;
 	int maxBytes;
 private:
 	std::ifstream* fileStream;
+	char* buffer;
 };
+
+#endif

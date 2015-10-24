@@ -44,19 +44,17 @@ char* FileReader::read() {
 
 char* FileReader::readLine() {
 	string str;
+	char* buffer;
 
 	getline(*this->fileStream, str);
 	++this->lineCount;
 	this->currentReadingPosition = 0;
 	this->bufferSize = str.length();
 
-	if (this->buffer != NULL) {
-		delete this->buffer;
-	}
-	this->buffer = new char[this->bufferSize + 1];
-	strcpy(this->buffer, str.c_str());
+	buffer = new char[this->bufferSize + 1];
+	strcpy(buffer, str.c_str());
 
-	return this->buffer;
+	return buffer;
 }
 
 bool FileReader::hasContent() {
