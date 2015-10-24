@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <string.h>
 
 #include "FileReader.h"
 
@@ -21,15 +22,15 @@ FileReader::~FileReader() {
 	delete this->buffer;
 }
 
-char* FileReader::read() {
+char* FileReader::read(char* buffer, int bytes) {
 	int lastBufferSize = this->bufferSize;
 
-	this->fileStream->get(this->buffer, this->maxBytes);
+	this->fileStream->get(buffer, bytes);
 	this->bufferSize = this->fileStream->gcount();
 
 	if (!this->bufferSize) {
 		this->fileStream->clear();
-		this->fileStream->getline(this->buffer, this->maxBytes); //\r\n\0
+		this->fileStream->getline(buffer, bytes); //\r\n\0
 
 		this->bufferSize = 0;
 		this->currentReadingPosition = 0;
@@ -39,6 +40,25 @@ char* FileReader::read() {
 	}
 
 	return this->buffer;
+}
+
+char* FileReader::read() {
+	return this->read(this->buffer, this->maxBytes);
+}
+
+char* FileReader::readLine() {
+	string str;
+	char* buffer;
+
+	getline(*this->fileStream, str);
+	++this->lineCount;
+	this->currentReadingPosition = 0;
+	this->bufferSize = str.length();
+
+	buffer = new char[this->bufferSize + 1];
+	strcpy(buffer, str.c_str());
+
+	return buffer;
 }
 
 bool FileReader::hasContent() {

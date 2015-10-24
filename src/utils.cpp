@@ -8,17 +8,27 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <vector>
 
 #include "utils.h"
+#include "search/ApproximateSearchStrategy.h"
+#include "search/Sellers.h"
+#include "search/ExactSearchStrategy.h"
+#include "search/KnuthMorrisPratt.h"
+#include "search/Occurrence.h"
+#include "input/FileReader.h"
 
 using namespace std;
 
 program_args::program_args()
   : allowed_edit_distance(0),
     pattern_file(0),
-    patterns(0),
     help_flag(false),
     source_text_files(0) { }
+
+program_args::~program_args() {
+
+}
 
 program_args get_program_parameters(int argc, char** argv) {
   int option_index;
@@ -67,9 +77,7 @@ program_args get_program_parameters(int argc, char** argv) {
     are target textfiles. Otherwise, the first one will be
     the pattern string*/
     if (!args.pattern_file) {
-      args.patterns = new char*[2];
-      args.patterns[0] = argv[optind++];
-      args.patterns[1] = 0;
+      args.patterns.push_back(argv[optind++]);
     }
 
     if (optind < argc) {
@@ -115,23 +123,38 @@ int glob_error(const char *path, int eerrno) {
   return 0; /* let glob() keep going */
 }
 
-/* 
+void read_pattern_file(program_args &args) {
+  FileReader fr(args.pattern_file);
+  char* buffer;
+
+  while(fr.hasContent()) {
+    buffer = fr.readLine();
+
+    if (buffer[0] != '\0') {
+      args.patterns.push_back(buffer);
+    } else {
+      delete buffer;
+    }
+  }
+}
+
+/*
  * search_files --- searches source_text_files entries
- * whose name matches with one or more of the given 
+ * whose name matches with one or more of the given
  * filenames
  */
 
-void search_files(char **source_text_files) {
+void search_files(program_args &args) {
   int i;
   int flags = 0;
   glob_t results;
   int ret;
 
-  for (i = 0; source_text_files[i]; i++) {
-    ret = glob(source_text_files[i], flags, glob_error, & results);
+  for (i = 0; args.source_text_files[i]; i++) {
+    ret = glob(args.source_text_files[i], flags, glob_error, & results);
     if (ret != 0) {
       fprintf(stderr, "pmt: problem with %s (%s)\n",
-        source_text_files[i],
+        args.source_text_files[i],
         (ret == GLOB_ABORTED ? "filesystem problem" :
          ret == GLOB_NOMATCH ? "no match of pattern" :
          ret == GLOB_NOSPACE ? "no dynamic memory" :
@@ -141,15 +164,51 @@ void search_files(char **source_text_files) {
       for (int i = 0; i < results.gl_pathc; ++i) {
         // Check if it really is a file
         if (is_regular_file(results.gl_pathv[i])) {
-          cout << results.gl_pathv[i] << endl;  
+          cout << results.gl_pathv[i] << endl;
         } else {
           cout << results.gl_pathv[i] << " isn't a regular file" << endl;
         }
-        
+
         // call search algorithm
+        if (args.allowed_edit_distance) { // approximate search
+          ApproximateSearchStrategy* searchStrategy = new Sellers(args.allowed_edit_distance);
+          vector<Occurrence> result;
+
+          for (int j = 0; j < args.patterns.size(); j++) {
+            result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
+
+            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
+            if (!result.size()) {
+              cout << "No occurrences found." << endl;
+            }
+            for (int k = 0; k < result.size(); k++) {
+              cout << "Occurrence at line " << result[k].lineNumber <<
+                ", ending at position " << result[k].position << " with error " << result[k].error << endl;
+            }
+          }
+
+          delete searchStrategy;
+        } else { // exact search
+          ExactSearchStrategy* searchStrategy = new KnuthMorrisPratt();
+          vector<Occurrence> result;
+
+          for (int j = 0; j < args.patterns.size(); j++) {
+            result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
+
+            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
+            if (!result.size()) {
+              cout << "No occurrences found." << endl;
+            }
+            for (int k = 0; k < result.size(); k++) {
+              cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
+            }
+          }
+
+          delete searchStrategy;
+        }
       }
     }
   }
 
-  globfree(& results);
+  globfree(&results);
 }
