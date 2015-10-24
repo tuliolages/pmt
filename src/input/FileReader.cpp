@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <string.h>
 
 #include "FileReader.h"
 
@@ -39,6 +40,21 @@ char* FileReader::read() {
 	}
 
 	return this->buffer;
+}
+
+char* FileReader::readLine() {
+	string str;
+	char* buffer;
+
+	getline(*this->fileStream, str);
+	++this->lineCount;
+	this->currentReadingPosition = 0;
+	this->bufferSize = str.length();
+
+	buffer = new char[this->bufferSize + 1];
+	strcpy(buffer, str.c_str());
+
+	return buffer;
 }
 
 bool FileReader::hasContent() {
