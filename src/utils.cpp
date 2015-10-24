@@ -24,17 +24,7 @@ program_args::program_args()
     source_text_files(0) { }
 
 program_args::~program_args() {
-  if (this->pattern_file != NULL) {
-    delete this->pattern_file;
-  }
-
-  if (this->patterns != NULL) {
-    for (int i = 0; this->patterns[i]; i++) {
-      delete this->patterns[i];
-    }
-
-    delete this->patterns;
-  }
+  
 }
 
 program_args get_program_parameters(int argc, char** argv) {
@@ -176,7 +166,8 @@ void search_files(program_args args) {
               cout << "No occurrences found." << endl;
             }
             for (int k = 0; k < result.size(); k++) {
-              cout << "Occurrence at line " << result[k].lineNumber << ", position " << result[k].position << endl;
+              cout << "Occurrence at line " << result[k].lineNumber <<
+                ", ending at position " << result[k].position << " with error " << result[k].error << endl;
             }
           }
         } else { // exact search
