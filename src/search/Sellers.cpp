@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "Sellers.h"
-#include "Occurrence.h"
 #include "../input/FileReader.h"
 
 using namespace std;
