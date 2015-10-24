@@ -12,6 +12,7 @@
 
 #include "utils.h"
 #include "search/Sellers.h"
+#include "search/BoyerMoore.h"
 #include "search/Occurrence.h"
 
 using namespace std;
@@ -180,11 +181,11 @@ void search_files(program_args args) {
             }
           }
         } else { // exact search
-          Sellers sellers(args.allowed_edit_distance); //TODO: substituir esse pelos de exatas!
+          BoyerMoore boyerMoore(); //TODO: substituir esse pelos de exatas!
           vector<Occurrence> result;
 
           for (int j = 0; args.patterns[j]; j++) {
-            result = sellers.search(args.patterns[j], results.gl_pathv[i]);
+            result = boyerMoore.search(args.patterns[j], results.gl_pathv[i]);
 
             cout << "For pattern " << args.patterns[i] << ":" << endl;
             if (!result.size()) {

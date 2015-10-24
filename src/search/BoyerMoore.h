@@ -1,5 +1,26 @@
-int max (int a, int b);
-int brd(char *pat, int j);
-void bad_character_heuristic(char *pat, int pat_len, int bc[NUMBER_OF_CHARS]);
-void search(char *txt, char *pat);
-void main();
+#ifndef BOYERMOORE_H
+#define BOYERMOORE_H
+
+#include <vector>
+
+#include "ExactSearchStrategy.h"
+#include "Occurrence.h"
+
+class BoyerMoore : public ExactSearchStrategy {
+public:
+	BoyerMoore();
+	virtual ~BoyerMoore();
+	virtual std::vector<Occurrence> search(char* pattern, char* inputFile);
+private:
+	void borders(char *pattern, int *B);
+	void good_suffix_heuristic(char *pattern, int pattern_length, int *good_suffix_array);
+	void bad_character_heuristic(char *pattern, int pattern_lenght, int *bad_character_array);
+	char getTextAt(int index);
+
+	char* currentBuffer;
+	int currentBufferSize;
+	char* nextBuffer;
+	int nextBufferSize;
+};
+
+#endif
