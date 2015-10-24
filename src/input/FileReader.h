@@ -6,6 +6,7 @@ public:
 	~FileReader();
 	char* read();
 	bool hasContent();
+	char* readLine();
 
 	int lineCount;
 	int currentReadingPosition;
