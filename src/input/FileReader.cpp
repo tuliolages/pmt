@@ -46,6 +46,10 @@ char* FileReader::read() {
 	return this->read(this->buffer, this->maxBytes);
 }
 
+string FileReader::readAsString() {
+	return string(this->read(this->buffer, this->maxBytes));
+}
+
 char* FileReader::readLine() {
 	string str;
 	char* buffer;
