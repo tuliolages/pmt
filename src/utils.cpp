@@ -11,31 +11,24 @@
 #include <vector>
 
 #include "utils.h"
+#include "search/ApproximateSearchStrategy.h"
 #include "search/Sellers.h"
 #include "search/BoyerMoore.h"
+#include "search/ExactSearchStrategy.h"
+#include "search/KnuthMorrisPratt.h"
 #include "search/Occurrence.h"
+#include "input/FileReader.h"
 
 using namespace std;
 
 program_args::program_args()
   : allowed_edit_distance(0),
     pattern_file(0),
-    patterns(0),
     help_flag(false),
     source_text_files(0) { }
 
 program_args::~program_args() {
-  if (this->pattern_file != NULL) {
-    delete this->pattern_file;
-  }
 
-  if (this->patterns != NULL) {
-    for (int i = 0; this->patterns[i]; i++) {
-      delete this->patterns[i];
-    }
-
-    delete this->patterns;
-  }
 }
 
 program_args get_program_parameters(int argc, char** argv) {
@@ -85,9 +78,7 @@ program_args get_program_parameters(int argc, char** argv) {
     are target textfiles. Otherwise, the first one will be
     the pattern string*/
     if (!args.pattern_file) {
-      args.patterns = new char*[2];
-      args.patterns[0] = argv[optind++];
-      args.patterns[1] = 0;
+      args.patterns.push_back(argv[optind++]);
     }
 
     if (optind < argc) {
@@ -133,13 +124,28 @@ int glob_error(const char *path, int eerrno) {
   return 0; /* let glob() keep going */
 }
 
+void read_pattern_file(program_args &args) {
+  FileReader fr(args.pattern_file);
+  char* buffer;
+
+  while(fr.hasContent()) {
+    buffer = fr.readLine();
+
+    if (buffer[0] != '\0') {
+      args.patterns.push_back(buffer);
+    } else {
+      delete buffer;
+    }
+  }
+}
+
 /*
  * search_files --- searches source_text_files entries
  * whose name matches with one or more of the given
  * filenames
  */
 
-void search_files(program_args args) {
+void search_files(program_args &args) {
   int i;
   int flags = 0;
   glob_t results;
@@ -166,35 +172,40 @@ void search_files(program_args args) {
 
         // call search algorithm
         if (args.allowed_edit_distance) { // approximate search
-          Sellers sellers(args.allowed_edit_distance);
+          ApproximateSearchStrategy* searchStrategy = new Sellers(args.allowed_edit_distance);
           vector<Occurrence> result;
 
-          for (int j = 0; args.patterns[j]; j++) {
-            result = sellers.search(args.patterns[j], results.gl_pathv[i]);
+          for (int j = 0; j < args.patterns.size(); j++) {
+            result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[i] << ":" << endl;
+            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }
             for (int k = 0; k < result.size(); k++) {
-              cout << "Occurrence at line " << result[k].lineNumber << ", position " << result[k].position << endl;
+              cout << "Occurrence at line " << result[k].lineNumber <<
+                ", ending at position " << result[k].position << " with error " << result[k].error << endl;
             }
           }
+
+          delete searchStrategy;
         } else { // exact search
-          BoyerMoore boyerMoore(); //TODO: substituir esse pelos de exatas!
+          ExactSearchStrategy* searchStrategy = new BoyerMoore();
           vector<Occurrence> result;
 
-          for (int j = 0; args.patterns[j]; j++) {
-            result = boyerMoore.search(args.patterns[j], results.gl_pathv[i]);
+          for (int j = 0; j < args.patterns.size(); j++) {
+            result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[i] << ":" << endl;
+            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }
             for (int k = 0; k < result.size(); k++) {
-              cout << "Occurrence at line " << result[k].lineNumber << ", position " << result[k].position << endl;
+              cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
             }
           }
+
+          delete searchStrategy;
         }
       }
     }

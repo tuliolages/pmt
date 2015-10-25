@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "Sellers.h"
-#include "Occurrence.h"
 #include "../input/FileReader.h"
 
 using namespace std;
@@ -42,12 +41,12 @@ vector<Occurrence> Sellers::search(char *pattern, char *inputFile) {
 				for (int i = 1; i < columnLen; i++) {
 					currentColumn[i] = min(
 						min(previousColumn[i] + 1, previousColumn[i - 1] + this->phi(pattern[i - 1], buffer[bufferIndex])),
-						previousColumn[i - 1] + 1
+						currentColumn[i - 1] + 1
 					);
 				}
 
 				if (currentColumn[columnLen - 1] <= this->editDistance) {
-					result.push_back(Occurrence(fr.lineCount, fr.currentReadingPosition + bufferIndex));
+					result.push_back(Occurrence(fr.lineCount, fr.currentReadingPosition + bufferIndex, currentColumn[columnLen - 1]));
 				}
 
 				//swap columns

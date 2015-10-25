@@ -1,3 +1,6 @@
+#ifndef APPROXSS_H
+#define APPROXSS_H
+
 #include <vector>
 #include "Occurrence.h"
 
@@ -9,3 +12,5 @@ public:
 	virtual std::vector<Occurrence> search(char*pattern, char* inputFile) = 0;
 	int phi(char patternChar, char textChar);
 };
+
+#endif
