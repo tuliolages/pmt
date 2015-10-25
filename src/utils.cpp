@@ -195,19 +195,17 @@ void search_files(program_args &args) {
 
           delete searchStrategy;
         } else { // exact search
-
           if (args.patterns.size() > 1) {
-
-            AhoCorasick ahoCorasick = new AhoCorasick();
-
+            AhoCorasick ahoCorasick;
             vector<OccurrenceMultiplePatterns> result;
 
-            result = ahoCorasick->search(results.gl_pathv[i],args.patterns);
+            result = ahoCorasick.search(args.patterns, results.gl_pathv[i]);
 
-            // TODO
-
-            delete ahoCorasick;
-
+            for (int j = 0; j < result.size(); j++) {
+              cout << "Occurrence for pattern " << result[j].value <<
+                " at line " << result[j].lineNumber <<
+                ", starting at position " << result[j].position << endl;
+            }
           } else {
             ExactSearchStrategy* searchStrategy;
 
@@ -216,7 +214,7 @@ void search_files(program_args &args) {
             } else {
               searchStrategy = new BoyerMoore();
             }
-            
+
             vector<Occurrence> result;
 
             for (int j = 0; j < args.patterns.size(); j++) {
@@ -230,7 +228,7 @@ void search_files(program_args &args) {
                 cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
               }
             }
-            delete searchStrategy;  
+            delete searchStrategy;
           }
         }
       }

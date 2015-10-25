@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <iostream>
 
 using namespace std;
 
@@ -31,7 +32,6 @@ Node* AhoCorasick::build_goto(vector<string> patterns){
   int j; // index
   int m; // pattern length
   char currentChar;// current char of the pattern
-  int next = 0; // node id counter
 
   unordered_map<char, Node*>::const_iterator iterator; // auxiliar iterator
   std::pair<char, Node*> newTransition; // new transition
@@ -41,21 +41,20 @@ Node* AhoCorasick::build_goto(vector<string> patterns){
     j = 0;
     m = patterns[k].size();
 
-    currentChar = patterns[k].at(j);
+    currentChar = patterns[k].at(0);
 
     while ((j < m) && ((iterator = currentNode->transitions.find(currentChar)) != currentNode->transitions.end())) {
-      currentNode = iterator->second;
-      j++;
       currentChar = patterns[k].at(j);
+      currentNode = iterator->second;
+      ++j;
     }
 
     while (j < m) {
-      next++;
+      currentChar = patterns[k].at(j);
       newTransition = make_pair(currentChar, new Node()); // create the new transition
       currentNode->transitions.insert(newTransition); // add the transition to the currentNode map of transitions
       currentNode = newTransition.second; // update the currentNode
       j++;
-      currentChar = patterns[k].at(j);
     }
 
     currentNode->ocurrencies.push_front(patterns[k]); // Add to this node its ocurrencies
@@ -63,7 +62,7 @@ Node* AhoCorasick::build_goto(vector<string> patterns){
 
   // Adding empty transitions for all chars that are not in the patterns
   for (int i = 0 ; i < 256; i++) {
-    if ((iterator = firstNode->transitions.find((char)i)) != firstNode->transitions.end()) {
+    if ((iterator = firstNode->transitions.find((char)i)) == firstNode->transitions.end()) {
       newTransition = make_pair((char)i, firstNode);
       firstNode->transitions.insert(newTransition);
     }
@@ -92,7 +91,7 @@ Node* AhoCorasick::build_fail(Node* firstNode){
   Node *nextNode;
   Node *failNode;
 
-  while (auxQueue.size()){
+  while (!auxQueue.empty()) {
     currentNode = auxQueue.front();
     auxQueue.pop();
 
@@ -104,15 +103,16 @@ Node* AhoCorasick::build_fail(Node* firstNode){
         failNode = currentNode->fail;
 
         while ((iterator = failNode->transitions.find((char)i)) == failNode->transitions.end()) {
-          failNode = iterator->second->fail;
+          failNode = failNode->fail;
         }
 
-        nextNode->fail = iterator->second->transitions.at((char)i);
+        nextNode->fail = failNode->transitions.at((char)i);
 
         nextNode->ocurrencies.push_back(&nextNode->fail->ocurrencies);
       }
     }
   }
+
   return firstNode;
 }
 
@@ -146,10 +146,13 @@ vector<OccurrenceMultiplePatterns> AhoCorasick::search(vector<string> patterns, 
             (i - currentOcc->occurrence.size() + 1),
             currentOcc->occurrence
           ));
+          currentOcc = currentOcc->next;
         }
       }
     }
   }
+
+  delete firstNode;
 
   return result;
 }
