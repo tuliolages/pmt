@@ -6,14 +6,26 @@
 //  Copyright © 2015 Rafael Nunes. All rights reserved.
 //
 
-#ifndef aho_corasick_hpp
-#define aho_corasick_hpp
+#ifndef AhoCorasick_h
+#define AhoCorasick_h
 
 #include <vector>
 #include <unordered_map>
-#include "OccurrenceList.hpp"
+#include "OccurrenceList.h"
+#include "ExactSearchStrategy.h"
+#include "Occurrence.h"
+#include "../input/FileReader.h"
 
-// Considera-se o alfabeto o conjunto de valores da tabela ASCII
+class AhoCorasick : public ExactSearchStrategy{
+public:
+	AhoCorasick();
+	virtual ~AhoCorasick();
+	virtual std::vector<OccurrenceMultiplePatterns> search(std::string text, std::vector<std::string> patterns);
+private:
+	Node* build_fail(Node* firstNode);
+	Node* build_goto(std::vector<std::string> patterns);
+};
+
 class Node {
     
 public:
@@ -24,4 +36,4 @@ public:
     Node();
 };
 
-#endif /* aho_corasick_hpp */
+#endif /* AhoCorasick_h */

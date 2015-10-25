@@ -6,7 +6,7 @@
 //  Copyright © 2015 Rafael Nunes. All rights reserved.
 //
 
-#include "OccurrenceList.hpp"
+#include "OccurrenceList.h"
 #include <string> 
 
 using namespace std;
