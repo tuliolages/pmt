@@ -22,10 +22,11 @@ class OccurrenceList {
 public:
     OccurrenceListNode *head;
     OccurrenceListNode *tail;
-    
+
     OccurrenceList();
     void push_front(std::string occurrence);
     void push_back(OccurrenceList *list);
+    bool empty();
 };
 
 #endif /* OccurrenceList_hpp */

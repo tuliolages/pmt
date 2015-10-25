@@ -18,6 +18,7 @@
 #include "search/KnuthMorrisPratt.h"
 #include "search/Occurrence.h"
 #include "input/FileReader.h"
+#include "search/AhoCorasick.h"
 
 using namespace std;
 
@@ -132,15 +133,13 @@ int glob_error(const char *path, int eerrno) {
 
 void read_pattern_file(program_args &args) {
   FileReader fr(args.pattern_file);
-  char* buffer;
+  string buffer;
 
   while(fr.hasContent()) {
     buffer = fr.readLine();
 
-    if (buffer[0] != '\0') {
+    if (buffer.size()) {
       args.patterns.push_back(buffer);
-    } else {
-      delete buffer;
     }
   }
 }
@@ -170,11 +169,11 @@ void search_files(program_args &args) {
     } else {
       for (int i = 0; i < results.gl_pathc; ++i) {
         // Check if it really is a file
-        if (is_regular_file(results.gl_pathv[i])) {
-          cout << results.gl_pathv[i] << endl;
-        } else {
+        if (!is_regular_file(results.gl_pathv[i])) {
           cout << results.gl_pathv[i] << " isn't a regular file" << endl;
-        }
+        } // else {
+        //   cout << results.gl_pathv[i] << endl;
+        // }
 
         // call search algorithm
         if (args.allowed_edit_distance) { // approximate search
@@ -184,10 +183,10 @@ void search_files(program_args &args) {
           for (int j = 0; j < args.patterns.size(); j++) {
             result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }
+
             for (int k = 0; k < result.size(); k++) {
               cout << "Occurrence at line " << result[k].lineNumber <<
                 ", ending at position " << result[k].position << " with error " << result[k].error << endl;
@@ -196,31 +195,47 @@ void search_files(program_args &args) {
 
           delete searchStrategy;
         } else { // exact search
-          ExactSearchStrategy* searchStrategy;
-          if (args.kmp_flag) {
-            searchStrategy = new KnuthMorrisPratt();
-          } else {
-            searchStrategy = new BoyerMoore();
-          }
-          vector<Occurrence> result;
+          if (args.patterns.size() > 1) {
+            AhoCorasick ahoCorasick;
+            vector<OccurrenceMultiplePatterns> result;
 
-          for (int j = 0; j < args.patterns.size(); j++) {
-            result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
+            result = ahoCorasick.search(args.patterns, results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }
+
+            for (int j = 0; j < result.size(); j++) {
+              cout << "Occurrence for pattern " << result[j].value <<
+                " at line " << result[j].lineNumber <<
+                ", starting at position " << result[j].position << endl;
+            }
+          } else {
+            ExactSearchStrategy* searchStrategy;
+
+            if (args.kmp_flag) {
+              searchStrategy = new KnuthMorrisPratt();
+            } else {
+              searchStrategy = new BoyerMoore();
+            }
+
+            vector<Occurrence> result;
+
+            result = searchStrategy->search(args.patterns[0], results.gl_pathv[i]);
+
+            if (!result.size()) {
+              cout << "No occurrences found." << endl;
+            }
+
             for (int k = 0; k < result.size(); k++) {
               cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
             }
-          }
 
-          delete searchStrategy;
+            delete searchStrategy;
+          }
         }
       }
     }
   }
-
   globfree(&results);
 }
