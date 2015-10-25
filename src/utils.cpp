@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "search/ApproximateSearchStrategy.h"
 #include "search/Sellers.h"
+#include "search/BoyerMoore.h"
 #include "search/ExactSearchStrategy.h"
 #include "search/KnuthMorrisPratt.h"
 #include "search/Occurrence.h"
@@ -23,6 +24,7 @@ using namespace std;
 program_args::program_args()
   : allowed_edit_distance(0),
     pattern_file(0),
+    kmp_flag(false),
     help_flag(false),
     source_text_files(0) { }
 
@@ -38,13 +40,14 @@ program_args get_program_parameters(int argc, char** argv) {
   struct option long_options[] =
   {
     {"edit",    required_argument, 0, 'e'},
+    {"kmp",     required_argument, 0, 'k'},
     {"pattern", required_argument, 0, 'p'},
     {"help",    no_argument,       0, 'h'},
     {0, 0, 0, 0}
   };
 
   while (1) {
-    current_parameter = getopt_long(argc, argv, "e:p:h", long_options, &option_index);
+    current_parameter = getopt_long(argc, argv, "e:kp:h", long_options, &option_index);
 
     if (current_parameter == -1) {
       break;
@@ -56,6 +59,9 @@ program_args get_program_parameters(int argc, char** argv) {
       break;
       case 'e':
       args.allowed_edit_distance = atoi(optarg);
+      break;
+      case 'k':
+      args.kmp_flag = true;
       break;
       case 'p':
       args.pattern_file = optarg;
@@ -105,6 +111,7 @@ void print_help_text() {
   cout << "Usage: pmt [options] [pattern] textfilepath [textfilepath ...]" << endl;
   cout << "Options:" << endl;
   print_help_line("  -e, --edit=<edit distance>", "Sets allowed edit distance for approximated text search");
+  print_help_line("  -k, --kmp", "Uses the KMP algorithm instead of Boyer Moore for exact searchs");
   print_help_line("  -p, --pattern=<pattern file>","Specifies file from which the program should read the patterns to be used (each line of the file specifies a pattern)");
   print_help_line("  -h, --help","Shows this message");
   cout << endl << "  If a pattern file is not specified, the first argument given to pmt will be read as the only pattern to be searched for in the text file. Several source text files can be specified at the same time." << endl;
@@ -189,7 +196,12 @@ void search_files(program_args &args) {
 
           delete searchStrategy;
         } else { // exact search
-          ExactSearchStrategy* searchStrategy = new KnuthMorrisPratt();
+          ExactSearchStrategy* searchStrategy;
+          if (args.kmp_flag) {
+            searchStrategy = new KnuthMorrisPratt();
+          } else {
+            searchStrategy = new BoyerMoore();
+          }
           vector<Occurrence> result;
 
           for (int j = 0; j < args.patterns.size(); j++) {

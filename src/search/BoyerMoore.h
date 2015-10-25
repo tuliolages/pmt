@@ -1,5 +1,5 @@
-#ifndef KMP_H
-#define KMP_H
+#ifndef BOYERMOORE_H
+#define BOYERMOORE_H
 
 #include <vector>
 
@@ -7,13 +7,15 @@
 #include "Occurrence.h"
 #include "../input/FileReader.h"
 
-class KnuthMorrisPratt : public ExactSearchStrategy {
+class BoyerMoore : public ExactSearchStrategy {
 public:
-	KnuthMorrisPratt();
-	virtual ~KnuthMorrisPratt();
+	BoyerMoore();
+	virtual ~BoyerMoore();
 	virtual std::vector<Occurrence> search(char* pattern, char* inputFile);
 private:
-	int* initNext(char* pattern, int patternLength);
+	void borders(char *pattern, int patternLength, int *borderArray);
+	void goodSuffixHeuristic(char *pattern, int patternLength, int *gs);
+	void badCharacterHeuristic(char *pattern, int patternLength, int *bc);
 	void readFromFile(FileReader &fr, int patternLength, char* buffer, int &bufSize);
 	char getTextAt(int index);
 

@@ -10,6 +10,7 @@ struct program_args {
   int allowed_edit_distance;
   char* pattern_file;
   std::vector<char*> patterns;
+  bool kmp_flag;
   bool help_flag;
   char** source_text_files;
 };
