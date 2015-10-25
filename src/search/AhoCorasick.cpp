@@ -6,7 +6,7 @@
 //  Copyright © 2015 Rafael Nunes. All rights reserved.
 //
 
-#include "aho-corasick.hpp"
+#include "AhoCorasick.h"
 #include "Occurrence.h"
 #include <string>
 #include <vector>
@@ -14,10 +14,16 @@
 
 using namespace std;
 
+AhoCorasick::AhoCorasick() { 
+}
+
+AhoCorasick::~AhoCorasick() {
+}
+
 Node::Node(){
 }
 
-Node* build_goto(vector<string> patterns){
+Node* AhoCorasick::build_goto(vector<string> patterns){
     Node *firstNode = new Node();
     Node *currentNode; // sail with it
     
@@ -67,7 +73,7 @@ Node* build_goto(vector<string> patterns){
     return firstNode;
 }
 
-Node* build_fail(Node* firstNode){
+Node* AhoCorasick::build_fail(Node* firstNode){
     queue<Node*> auxQueue;
     
     unordered_map<char, Node*>::const_iterator iterator; // auxiliar iterator
@@ -110,7 +116,7 @@ Node* build_fail(Node* firstNode){
     return firstNode;
 }
 
-vector<OccurrenceMultiplePatterns> search_aho_corasick(string text, vector<string> patterns){
+vector<OccurrenceMultiplePatterns> AhoCorasick::search(string text, vector<string> patterns){
     
     //Build goto and fail for the automata
     Node *firstNode = build_goto(patterns);
