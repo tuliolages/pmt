@@ -18,6 +18,7 @@
 #include "search/KnuthMorrisPratt.h"
 #include "search/Occurrence.h"
 #include "input/FileReader.h"
+#include "search/AhoCorasick.h"
 
 using namespace std;
 
@@ -194,31 +195,46 @@ void search_files(program_args &args) {
 
           delete searchStrategy;
         } else { // exact search
-          ExactSearchStrategy* searchStrategy;
-          if (args.kmp_flag) {
-            searchStrategy = new KnuthMorrisPratt();
+
+          if (args.patterns.size() > 1) {
+
+            AhoCorasick ahoCorasick = new AhoCorasick();
+
+            vector<OccurrenceMultiplePatterns> result;
+
+            result = ahoCorasick->search(results.gl_pathv[i],args.patterns);
+
+            // TODO
+
+            delete ahoCorasick;
+
           } else {
-            searchStrategy = new BoyerMoore();
-          }
-          vector<Occurrence> result;
+            ExactSearchStrategy* searchStrategy;
 
-          for (int j = 0; j < args.patterns.size(); j++) {
-            result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
-
-            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
-            if (!result.size()) {
-              cout << "No occurrences found." << endl;
+            if (args.kmp_flag) {
+              searchStrategy = new KnuthMorrisPratt();
+            } else {
+              searchStrategy = new BoyerMoore();
             }
-            for (int k = 0; k < result.size(); k++) {
-              cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
-            }
-          }
+            
+            vector<Occurrence> result;
 
-          delete searchStrategy;
+            for (int j = 0; j < args.patterns.size(); j++) {
+              result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
+
+              cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
+              if (!result.size()) {
+                cout << "No occurrences found." << endl;
+              }
+              for (int k = 0; k < result.size(); k++) {
+                cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
+              }
+            }
+            delete searchStrategy;  
+          }
         }
       }
     }
   }
-
   globfree(&results);
 }
