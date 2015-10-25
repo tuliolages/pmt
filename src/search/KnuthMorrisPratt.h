@@ -5,6 +5,7 @@
 
 #include "ExactSearchStrategy.h"
 #include "Occurrence.h"
+#include "../input/FileReader.h"
 
 class KnuthMorrisPratt : public ExactSearchStrategy {
 public:
@@ -13,6 +14,7 @@ public:
 	virtual std::vector<Occurrence> search(char* pattern, char* inputFile);
 private:
 	int* initNext(char* pattern, int patternLength);
+	void readFromFile(FileReader &fr, int patternLength, char* buffer, int &bufSize);
 	char getTextAt(int index);
 
 	char* currentBuffer;

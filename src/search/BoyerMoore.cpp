@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "BoyerMoore.h"
-#include "../input/FileReader.h"
 
 #define NUMBER_OF_CHARS 256
 
@@ -12,79 +11,78 @@ using namespace std;
 
 BoyerMoore::BoyerMoore()
 	: currentBuffer(0),
-		currentBufferSize(0),
-		nextBuffer(0),
-		nextBufferSize(0) { }
+    	currentBufferSize(0),
+    	nextBuffer(0),
+    	nextBufferSize(0) { }
 
 BoyerMoore::~BoyerMoore() {
 }
 
-void BoyerMoore::borders(char *pat, int *B) {
-	int m = strlen(pat);
+void BoyerMoore::borders(char *pattern, int patternLength, int *borderArray) {
 	int i;
-	B[0] = -1;
-	for (i = 1; i <= m; i++)
-		B[i] = 0;
+	borderArray[0] = -1;
+	for (i = 1; i <= patternLength; i++)
+		borderArray[i] = 0;
 	i = 1;
 	int j = 0;
-	while (i<m) {
-		while((i+j)<m && pat[j]==pat[i+j]) {
+	while (i<patternLength) {
+		while((i+j)<patternLength && pattern[j]==pattern[i+j]) {
 		cout << "ti" << endl;
 			j += 1;
-			B[i+j]=j;
+			borderArray[i+j]=j;
 		}
-		i += (j-B[j]);
-		j = std::max(0, B[j]);
+		i += (j-borderArray[j]);
+		j = std::max(0, borderArray[j]);
 	}
 }
 
-void BoyerMoore::good_suffix_heuristic(char *pat, int m, int *gs) {
-	int Pi [m+1];
-	BoyerMoore::borders(pat, Pi);
-	int PiR [m+1];
+void BoyerMoore::goodSuffixHeuristic(char *pattern, int patternLength, int *gs) {
+	int Pi [patternLength+1];
+	BoyerMoore::borders(pattern, patternLength, Pi);
+	int PiR [patternLength+1];
 	int i;
-	PiR[0] = Pi[m];
-	gs[0] = m+1;
-	for (i = 1; i < m+1; i++) {
-		PiR[i] = Pi[m-i];
-		gs[i] = m-Pi[m];
+	PiR[0] = Pi[patternLength];
+	gs[0] = patternLength+1;
+	for (i = 1; i < patternLength+1; i++) {
+		PiR[i] = Pi[patternLength-i];
+		gs[i] = patternLength-Pi[patternLength];
 	}
 	int j;
-	for (i = 1; i < m; i++) {
-		j = m-1-PiR[i];
+	for (i = 1; i < patternLength; i++) {
+		j = patternLength-1-PiR[i];
 		if (gs[j] > i-PiR[i])
 			gs[j] = i-PiR[i];
 	}
 }
 
-void BoyerMoore::bad_character_heuristic(char *pat, int m, int *bc) {
+void BoyerMoore::badCharacterHeuristic(char *pattern, int patternLength, int *bc) {
 	int i;
 	
 	for (i = 0; i < NUMBER_OF_CHARS; i++) {
 		bc[i] = -1;
 	}
 	
-	for (i = 0; i < m; i++) {
-		bc[(int) pat[i]] = i;
+	for (i = 0; i < patternLength; i++) {
+		bc[(int) pattern[i]] = i;
 	}
 }
 
-void readFromFile2(FileReader &fr, int patternLength, char* buffer, int &bufSize) {
-	if (patternLength >= fr.maxBytes) {
-		fr.read(buffer, patternLength);
-	} else {
-		strcpy(buffer, fr.read());
-	}
+void BoyerMoore::readFromFile(FileReader &fr, int patternLength, char* buffer, int &bufSize) {
+    if (patternLength >= fr.maxBytes) {
+        fr.read(buffer, patternLength);
+    } else {
+        strcpy(buffer, fr.read());
+    }
 
-	bufSize = fr.bufferSize;
+    bufSize = fr.bufferSize;
 }
 
 char BoyerMoore::getTextAt(int index) {
-	if (index >= this->currentBufferSize) {
-		return this->nextBuffer[index - this->currentBufferSize];
-	} else {
-		return this->currentBuffer[index];
-	}
+    if (index >= this->currentBufferSize) {
+        return this->nextBuffer[index - this->currentBufferSize];
+    } else {
+        return this->currentBuffer[index];
+    }
 }
 
 vector<Occurrence> BoyerMoore::search(char *pattern, char *inputFile) {
@@ -94,9 +92,9 @@ vector<Occurrence> BoyerMoore::search(char *pattern, char *inputFile) {
 	int patternLength = strlen(pattern);
 
 	int badCharArray[NUMBER_OF_CHARS];
-	bad_character_heuristic(pattern, patternLength, badCharArray);
+	badCharacterHeuristic(pattern, patternLength, badCharArray);
 	int goodSuffixArray[patternLength+1];
-	good_suffix_heuristic(pattern, patternLength, goodSuffixArray);
+	goodSuffixHeuristic(pattern, patternLength, goodSuffixArray);
 
 	int cursor = 0;
 	int matches = 0;
@@ -119,9 +117,9 @@ vector<Occurrence> BoyerMoore::search(char *pattern, char *inputFile) {
 		matches = 0;
 		readingPosition = 0;
 
-		readFromFile2(fr, bufferLength, this->currentBuffer, this->currentBufferSize);
+		readFromFile(fr, bufferLength, this->currentBuffer, this->currentBufferSize);
 		if (this->currentBufferSize) {
-			readFromFile2(fr, bufferLength, this->nextBuffer, this->nextBufferSize);
+			readFromFile(fr, bufferLength, this->nextBuffer, this->nextBufferSize);
 		} else {
 			this->nextBuffer[0] = '\0';
 			this->nextBufferSize = 0;
@@ -145,7 +143,7 @@ vector<Occurrence> BoyerMoore::search(char *pattern, char *inputFile) {
 				this->nextBuffer = aux;
 				readingPosition = fr.currentReadingPosition;
 
-				readFromFile2(fr, bufferLength, this->nextBuffer, this->nextBufferSize);
+				readFromFile(fr, bufferLength, this->nextBuffer, this->nextBufferSize);
 
 				cursor -= this->currentBufferSize;
 			}

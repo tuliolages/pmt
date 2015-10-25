@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "KnuthMorrisPratt.h"
-#include "../input/FileReader.h"
 
 using namespace std;
 
@@ -54,7 +53,7 @@ int* KnuthMorrisPratt::initNext(char *pattern, int patternLength) {
 	return result;
 }
 
-void readFromFile(FileReader &fr, int patternLength, char* buffer, int &bufSize) {
+void KnuthMorrisPratt::readFromFile(FileReader &fr, int patternLength, char* buffer, int &bufSize) {
 	if (patternLength >= fr.maxBytes) {
 		fr.read(buffer, patternLength);
 	} else {

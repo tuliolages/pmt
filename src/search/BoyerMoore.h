@@ -5,6 +5,7 @@
 
 #include "ExactSearchStrategy.h"
 #include "Occurrence.h"
+#include "../input/FileReader.h"
 
 class BoyerMoore : public ExactSearchStrategy {
 public:
@@ -12,9 +13,10 @@ public:
 	virtual ~BoyerMoore();
 	virtual std::vector<Occurrence> search(char* pattern, char* inputFile);
 private:
-	void borders(char *pattern, int *B);
-	void good_suffix_heuristic(char *pattern, int pattern_length, int *good_suffix_array);
-	void bad_character_heuristic(char *pattern, int pattern_lenght, int *bad_character_array);
+	void borders(char *pattern, int patternLength, int *borderArray);
+	void goodSuffixHeuristic(char *pattern, int patternLength, int *gs);
+	void badCharacterHeuristic(char *pattern, int patternLength, int *bc);
+	void readFromFile(FileReader &fr, int patternLength, char* buffer, int &bufSize);
 	char getTextAt(int index);
 
 	char* currentBuffer;
