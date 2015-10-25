@@ -169,11 +169,11 @@ void search_files(program_args &args) {
     } else {
       for (int i = 0; i < results.gl_pathc; ++i) {
         // Check if it really is a file
-        if (is_regular_file(results.gl_pathv[i])) {
-          cout << results.gl_pathv[i] << endl;
-        } else {
+        if (!is_regular_file(results.gl_pathv[i])) {
           cout << results.gl_pathv[i] << " isn't a regular file" << endl;
-        }
+        } // else {
+        //   cout << results.gl_pathv[i] << endl;
+        // }
 
         // call search algorithm
         if (args.allowed_edit_distance) { // approximate search
@@ -183,10 +183,10 @@ void search_files(program_args &args) {
           for (int j = 0; j < args.patterns.size(); j++) {
             result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
 
-            cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
             if (!result.size()) {
               cout << "No occurrences found." << endl;
             }
+
             for (int k = 0; k < result.size(); k++) {
               cout << "Occurrence at line " << result[k].lineNumber <<
                 ", ending at position " << result[k].position << " with error " << result[k].error << endl;
@@ -200,6 +200,10 @@ void search_files(program_args &args) {
             vector<OccurrenceMultiplePatterns> result;
 
             result = ahoCorasick.search(args.patterns, results.gl_pathv[i]);
+
+            if (!result.size()) {
+              cout << "No occurrences found." << endl;
+            }
 
             for (int j = 0; j < result.size(); j++) {
               cout << "Occurrence for pattern " << result[j].value <<
@@ -217,17 +221,16 @@ void search_files(program_args &args) {
 
             vector<Occurrence> result;
 
-            for (int j = 0; j < args.patterns.size(); j++) {
-              result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
+            result = searchStrategy->search(args.patterns[0], results.gl_pathv[i]);
 
-              cout << "For pattern " << args.patterns[j] << "(" << result.size() << " occurrences):" << endl;
-              if (!result.size()) {
-                cout << "No occurrences found." << endl;
-              }
-              for (int k = 0; k < result.size(); k++) {
-                cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
-              }
+            if (!result.size()) {
+              cout << "No occurrences found." << endl;
             }
+
+            for (int k = 0; k < result.size(); k++) {
+              cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
+            }
+
             delete searchStrategy;
           }
         }
