@@ -11,16 +11,16 @@
 
 #include <vector>
 #include <unordered_map>
-#include "OccurrenceList.hpp"
+#include "OccurrenceList.h"
 
 // Considera-se o alfabeto o conjunto de valores da tabela ASCII
 class Node {
-    
+
 public:
     Node *fail;
     OccurrenceList ocurrencies;
     std::unordered_map<char , Node*> transitions;
-    
+
     Node();
 };
 

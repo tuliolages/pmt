@@ -132,15 +132,13 @@ int glob_error(const char *path, int eerrno) {
 
 void read_pattern_file(program_args &args) {
   FileReader fr(args.pattern_file);
-  char* buffer;
+  string buffer;
 
   while(fr.hasContent()) {
     buffer = fr.readLine();
 
-    if (buffer[0] != '\0') {
+    if (buffer.size()) {
       args.patterns.push_back(buffer);
-    } else {
-      delete buffer;
     }
   }
 }

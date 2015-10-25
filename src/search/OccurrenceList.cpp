@@ -6,8 +6,8 @@
 //  Copyright © 2015 Rafael Nunes. All rights reserved.
 //
 
-#include "OccurrenceList.hpp"
-#include <string> 
+#include "OccurrenceList.h"
+#include <string>
 
 using namespace std;
 
@@ -21,10 +21,10 @@ OccurrenceList::OccurrenceList() {
 
 void OccurrenceList::push_front(string newOccurrence) {
     OccurrenceListNode *newListHead = new OccurrenceListNode(newOccurrence);
-    
+
     if(this->head != NULL)
         newListHead->next = this->head;
-    
+
     this->head = newListHead;
 }
 
