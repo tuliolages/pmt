@@ -6,22 +6,32 @@
 //  Copyright © 2015 Rafael Nunes. All rights reserved.
 //
 
-#ifndef aho_corasick_hpp
-#define aho_corasick_hpp
+#ifndef AhoCorasick_h
+#define AhoCorasick_h
 
 #include <vector>
 #include <unordered_map>
 #include "OccurrenceList.h"
+#include "Occurrence.h"
+#include "../input/FileReader.h"
 
-// Considera-se o alfabeto o conjunto de valores da tabela ASCII
 class Node {
-
 public:
-    Node *fail;
-    OccurrenceList ocurrencies;
-    std::unordered_map<char , Node*> transitions;
+	Node *fail;
+	OccurrenceList ocurrencies;
+	std::unordered_map<char , Node*> transitions;
 
-    Node();
+	Node();
 };
 
-#endif /* aho_corasick_hpp */
+class AhoCorasick {
+public:
+	AhoCorasick();
+	virtual ~AhoCorasick();
+	virtual std::vector<OccurrenceMultiplePatterns> search(std::vector<std::string> patterns, char* inputFile);
+private:
+	Node* build_fail(Node* firstNode);
+	Node* build_goto(std::vector<std::string> patterns);
+};
+
+#endif /* AhoCorasick_h */

@@ -15,10 +15,16 @@
 
 using namespace std;
 
+AhoCorasick::AhoCorasick() {
+}
+
+AhoCorasick::~AhoCorasick() {
+}
+
 Node::Node(){
 }
 
-Node* build_goto(vector<string> patterns){
+Node* AhoCorasick::build_goto(vector<string> patterns){
   Node *firstNode = new Node();
   Node *currentNode; // sail with it
 
@@ -37,15 +43,13 @@ Node* build_goto(vector<string> patterns){
 
     currentChar = patterns[k].at(j);
 
-    while ((j < m) && ((iterator = currentNode->transitions.find(currentChar)) != currentNode->transitions.end()))
-    {
+    while ((j < m) && ((iterator = currentNode->transitions.find(currentChar)) != currentNode->transitions.end())) {
       currentNode = iterator->second;
       j++;
       currentChar = patterns[k].at(j);
     }
 
-    while (j < m)
-    {
+    while (j < m) {
       next++;
       newTransition = make_pair(currentChar, new Node()); // create the new transition
       currentNode->transitions.insert(newTransition); // add the transition to the currentNode map of transitions
@@ -68,7 +72,8 @@ Node* build_goto(vector<string> patterns){
   return firstNode;
 }
 
-Node* build_fail(Node* firstNode){
+
+Node* AhoCorasick::build_fail(Node* firstNode){
   queue<Node*> auxQueue;
 
   unordered_map<char, Node*>::const_iterator iterator; // auxiliar iterator
@@ -76,7 +81,7 @@ Node* build_fail(Node* firstNode){
 
   for (int i = 0; i < 256; i++) {
     if ((iterator = firstNode->transitions.find((char)i)) != firstNode->transitions.end()) {
-      if (firstNode != iterator->second){ // If its not the firstNode we enqueue
+      if (firstNode != iterator->second) { // If its not the firstNode we enqueue
         auxQueue.push(iterator->second);
         iterator->second->fail = firstNode;
       }
@@ -111,7 +116,7 @@ Node* build_fail(Node* firstNode){
   return firstNode;
 }
 
-vector<OccurrenceMultiplePatterns> search_aho_corasick(vector<string> patterns, char *inputFile) {
+vector<OccurrenceMultiplePatterns> AhoCorasick::search(vector<string> patterns, char *inputFile) {
   FileReader fr(inputFile);
   //Build goto and fail transitions for the automata
   Node *firstNode = build_goto(patterns);
