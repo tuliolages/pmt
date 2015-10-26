@@ -23,85 +23,90 @@
 using namespace std;
 
 program_args::program_args()
-	: allowed_edit_distance(0),
-		pattern_file(0),
-		kmp_flag(false),
-		help_flag(false),
-		source_text_files(0) { }
+  : allowed_edit_distance(0),
+    pattern_file(0),
+    kmp_flag(false),
+    quiet_flag(false),
+    help_flag(false),
+    source_text_files(0) { }
 
 program_args::~program_args() {
 
 }
 
 program_args get_program_parameters(int argc, char** argv) {
-	int option_index;
-	int current_parameter;
-	program_args args;
+  int option_index;
+  int current_parameter;
+  program_args args;
 
-	struct option long_options[] =
-	{
-		{"edit",    required_argument, 0, 'e'},
-		{"kmp",     required_argument, 0, 'k'},
-		{"pattern", required_argument, 0, 'p'},
-		{"help",    no_argument,       0, 'h'},
-		{0, 0, 0, 0}
-	};
+  struct option long_options[] =
+  {
+    {"edit",    required_argument, 0, 'e'},
+    {"kmp",     no_argument,       0, 'k'},
+    {"quiet",   no_argument,       0, 'q'},
+    {"pattern", required_argument, 0, 'p'},
+    {"help",    no_argument,       0, 'h'},
+    {0, 0, 0, 0}
+  };
 
-	while (1) {
-		current_parameter = getopt_long(argc, argv, "e:kp:h", long_options, &option_index);
+  while (1) {
+    current_parameter = getopt_long(argc, argv, "e:kqp:h", long_options, &option_index);
 
-		if (current_parameter == -1) {
-			break;
-		}
+    if (current_parameter == -1) {
+      break;
+    }
 
-		switch (current_parameter) {
-			case 0:
-			// No momento, nenhum argumento está sendo usado para setar uma flag
-			break;
-			case 'e':
-			args.allowed_edit_distance = atoi(optarg);
-			break;
-			case 'k':
-			args.kmp_flag = true;
-			break;
-			case 'p':
-			args.pattern_file = optarg;
-			break;
-			case 'h':
-			args.help_flag = true;
-			break;
-			case '?':
-			// Um argumento desconhecido é apenas ignorado no momento
-			break;
-			default:
-			exit(1);
-		}
-	}
+    switch (current_parameter) {
+      case 0:
+      // No momento, nenhum argumento está sendo usado para setar uma flag
+      break;
+      case 'e':
+      args.allowed_edit_distance = atoi(optarg);
+      break;
+      case 'k':
+      args.kmp_flag = true;
+      break;
+      case 'q':
+      args.quiet_flag = true;
+      break;
+      case 'p':
+      args.pattern_file = optarg;
+      break;
+      case 'h':
+      args.help_flag = true;
+      break;
+      case '?':
+      // Um argumento desconhecido é apenas ignorado no momento
+      break;
+      default:
+      exit(1);
+    }
+  }
 
-	if (optind < argc) {
-		/* Legacy text
-		If pattern_flag is set, then the remaining arguments
-		are target textfiles. Otherwise, the first one will be
-		the pattern string*/
-		if (!args.pattern_file) {
-			args.patterns.push_back(argv[optind++]);
-		}
+  if (optind < argc) {
+    /* Legacy text
+    If pattern_flag is set, then the remaining arguments
+    are target textfiles. Otherwise, the first one will be
+    the pattern string*/
+    if (!args.pattern_file) {
+      args.patterns.push_back(argv[optind++]);
+    }
 
-		if (optind < argc) {
-			int source_text_files_length = argc - optind + 2;
-			int i = 0;
+    if (optind < argc) {
+      int source_text_files_length = argc - optind + 2;
+      int i = 0;
 
-			args.source_text_files = new char*[source_text_files_length];
+      args.source_text_files = new char*[source_text_files_length];
 
-			while (optind < argc) {
-				args.source_text_files[i++] = argv[optind++];
-			}
+      while (optind < argc) {
+        args.source_text_files[i++] = argv[optind++];
+      }
 
-			args.source_text_files[i] = 0;
-		}
-	}
+      args.source_text_files[i] = 0;
+    }
+  }
 
-	return args;
+  return args;
 }
 
 void print_help_line(char const *msg1, char const *msg2) {
@@ -109,13 +114,14 @@ void print_help_line(char const *msg1, char const *msg2) {
 }
 
 void print_help_text() {
-	cout << "Usage: pmt [options] [pattern] textfilepath [textfilepath ...]" << endl;
-	cout << "Options:" << endl;
-	print_help_line("  -e, --edit=<edit distance>", "Sets allowed edit distance for approximated text search");
-	print_help_line("  -k, --kmp", "Uses the KMP algorithm instead of Boyer Moore for exact searchs");
-	print_help_line("  -p, --pattern=<pattern file>","Specifies file from which the program should read the patterns to be used (each line of the file specifies a pattern)");
-	print_help_line("  -h, --help","Shows this message");
-	cout << endl << "  If a pattern file is not specified, the first argument given to pmt will be read as the only pattern to be searched for in the text file. Several source text files can be specified at the same time." << endl;
+  cout << "Usage: pmt [options] [pattern] textfilepath [textfilepath ...]" << endl;
+  cout << "Options:" << endl;
+  print_help_line("  -e, --edit=<edit distance>", "Sets allowed edit distance for approximated text search");
+  print_help_line("  -k, --kmp", "Uses the KMP algorithm instead of Boyer Moore for exact searchs");
+  print_help_line("  -q, --quiet", "Inhibits every output message");
+  print_help_line("  -p, --pattern=<pattern file>","Specifies file from which the program should read the patterns to be used (each line of the file specifies a pattern)");
+  print_help_line("  -h, --help","Shows this message");
+  cout << endl << "  If a pattern file is not specified, the first argument given to pmt will be read as the only pattern to be searched for in the text file. Several source text files can be specified at the same time." << endl;
 }
 
 int is_regular_file(const char *path) {
@@ -159,7 +165,8 @@ void search_files(program_args &args) {
   for (i = 0; args.source_text_files[i]; i++) {
     ret = glob(args.source_text_files[i], flags, glob_error, & results);
     if (ret != 0) {
-      fprintf(stderr, "pmt: problem with %s (%s)\n",
+      if (!args.quiet_flag)
+        fprintf(stderr, "pmt: problem with %s (%s)\n",
         args.source_text_files[i],
         (ret == GLOB_ABORTED ? "filesystem problem" :
          ret == GLOB_NOMATCH ? "no match of pattern" :
@@ -169,11 +176,13 @@ void search_files(program_args &args) {
     } else {
       for (int i = 0; i < results.gl_pathc; ++i) {
         // Check if it really is a file
-        if (!is_regular_file(results.gl_pathv[i])) {
-          cout << results.gl_pathv[i] << " isn't a regular file" << endl;
-        } // else {
-        //   cout << results.gl_pathv[i] << endl;
-        // }
+        if (!args.quiet_flag) {
+          if (is_regular_file(results.gl_pathv[i])) {
+            //cout << results.gl_pathv[i] << endl;
+          } else {
+            if (!args.quiet_flag) cout << results.gl_pathv[i] << " isn't a regular file" << endl;
+          }
+        }
 
         // call search algorithm
         if (args.allowed_edit_distance) { // approximate search
@@ -183,13 +192,15 @@ void search_files(program_args &args) {
           for (int j = 0; j < args.patterns.size(); j++) {
             result = searchStrategy->search(args.patterns[j], results.gl_pathv[i]);
 
-            if (!result.size()) {
-              cout << "No occurrences found." << endl;
-            }
+            if (!args.quiet_flag) {
+              if (!result.size()) {
+                cout << "No occurrences found." << endl;
+              }
 
-            for (int k = 0; k < result.size(); k++) {
-              cout << "Occurrence at line " << result[k].lineNumber <<
-                ", ending at position " << result[k].position << " with error " << result[k].error << endl;
+              for (int k = 0; k < result.size(); k++) {
+                cout << "Occurrence at line " << result[k].lineNumber <<
+                  ", ending at position " << result[k].position << " with error " << result[k].error << endl;
+              }
             }
           }
 
@@ -200,16 +211,17 @@ void search_files(program_args &args) {
             vector<OccurrenceMultiplePatterns> result;
 
             result = ahoCorasick.search(args.patterns, results.gl_pathv[i]);
+            if (!args.quiet_flag) {
+              if (!result.size()) {
+                cout << "No occurrences found." << endl;
+              }
 
-            if (!result.size()) {
-              cout << "No occurrences found." << endl;
-            }
-
-            for (int j = 0; j < result.size(); j++) {
-              printf ("%s: Occurrence for pattern %s at line %d starting at position %d \n", results.gl_pathv[i], result[j].value.c_str(), result[j].lineNumber, result[j].position);
-              //cout << "Occurrence for pattern " << result[j].value <<
-              //  " at line " << result[j].lineNumber <<
-              //  ", starting at position " << result[j].position << endl;
+              for (int j = 0; j < result.size(); j++) {
+                printf ("%s: Occurrence for pattern %s at line %d starting at position %d \n", results.gl_pathv[i], result[j].value.c_str(), result[j].lineNumber, result[j].position);
+                //cout << "Occurrence for pattern " << result[j].value <<
+                //  " at line " << result[j].lineNumber <<
+                //  ", starting at position " << result[j].position << endl;
+              }
             }
           } else {
             ExactSearchStrategy* searchStrategy;
@@ -224,13 +236,15 @@ void search_files(program_args &args) {
 
             result = searchStrategy->search(args.patterns[0], results.gl_pathv[i]);
 
-            if (!result.size()) {
-              cout << "No occurrences found." << endl;
-            }
+            if (!args.quiet_flag) {
+              if (!result.size()) {
+                cout << "No occurrences found." << endl;
+              }
 
-            for (int k = 0; k < result.size(); k++) {
-              printf ("%s: Occurrence at line %d  starting at position %d \n", results.gl_pathv[i],result[k].lineNumber, result[k].position);
-              //cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
+              for (int k = 0; k < result.size(); k++) {
+                printf ("%s: Occurrence at line %d  starting at position %d \n", results.gl_pathv[i],result[k].lineNumber, result[k].position);
+                //cout << "Occurrence at line " << result[k].lineNumber << ", starting at position " << result[k].position << endl;
+              }
             }
 
             delete searchStrategy;
