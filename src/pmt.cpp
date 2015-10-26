@@ -1,5 +1,6 @@
 #include <getopt.h>
 #include <iostream>
+#include <stdlib.h>
 
 #include "utils.h"
 #include "input/FileReader.h"

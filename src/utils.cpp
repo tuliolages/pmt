@@ -194,7 +194,7 @@ void search_files(program_args &args) {
 
             if (!args.quiet_flag) {
               if (!result.size()) {
-                cout << "No occurrences found." << endl;
+                printf ("%s: No occurrences found.\n", results.gl_pathv[i]);
               }
 
               for (int k = 0; k < result.size(); k++) {
@@ -213,7 +213,7 @@ void search_files(program_args &args) {
             result = ahoCorasick.search(args.patterns, results.gl_pathv[i]);
             if (!args.quiet_flag) {
               if (!result.size()) {
-                cout << "No occurrences found." << endl;
+                printf ("%s: No occurrences found.\n", results.gl_pathv[i]);
               }
 
               for (int j = 0; j < result.size(); j++) {
@@ -238,7 +238,7 @@ void search_files(program_args &args) {
 
             if (!args.quiet_flag) {
               if (!result.size()) {
-                cout << "No occurrences found." << endl;
+                printf ("%s: No occurrences found.\n", results.gl_pathv[i]);
               }
 
               for (int k = 0; k < result.size(); k++) {

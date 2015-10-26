@@ -10,7 +10,7 @@ pmt: $(OBJ)
 
 $(OBJ): $(SRC)
 	@mkdir -p $(@D)
-	g++ -c $(patsubst obj/%.o, src/%.cpp, $@) -o $@
+	g++ -std=c++11 -c $(patsubst obj/%.o, src/%.cpp, $@) -o $@
 
 clean:
 	rm -rf obj/*
