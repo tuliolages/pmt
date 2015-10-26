@@ -8,6 +8,7 @@
 using namespace std;
 
 int main (int argc, char **argv) {
+  
   program_args args = get_program_parameters(argc, argv);
 
   if (args.help_flag) {
@@ -39,6 +40,8 @@ int main (int argc, char **argv) {
       for (int i = 0; i < args.patterns.size(); i++) {
         cout << "  " << args.patterns[i] << endl;
       }
+    } else {
+      read_pattern_file(args);
     }
     
     if (args.source_text_files) {

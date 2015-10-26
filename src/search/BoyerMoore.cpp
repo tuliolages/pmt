@@ -27,7 +27,6 @@ void BoyerMoore::borders(string pattern, int *borderArray) {
 	int j = 0;
 	while (i < pattern.size()) {
 		while((i + j) < pattern.size() && pattern[j] == pattern[i + j]) {
-		cout << "ti" << endl;
 			j += 1;
 			borderArray[i + j]=j;
 		}

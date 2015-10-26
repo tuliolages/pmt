@@ -165,23 +165,22 @@ void search_files(program_args &args) {
   for (i = 0; args.source_text_files[i]; i++) {
     ret = glob(args.source_text_files[i], flags, glob_error, & results);
     if (ret != 0) {
-      if (!args.quiet_flag)
+      if (!args.quiet_flag) {
         fprintf(stderr, "pmt: problem with %s (%s)\n",
         args.source_text_files[i],
         (ret == GLOB_ABORTED ? "filesystem problem" :
          ret == GLOB_NOMATCH ? "no match of pattern" :
          ret == GLOB_NOSPACE ? "no dynamic memory" :
          "unknown problem"));
+      }
       // continues even if it spots a problem
     } else {
       for (int i = 0; i < results.gl_pathc; ++i) {
         // Check if it really is a file
-        if (!args.quiet_flag) {
-          if (is_regular_file(results.gl_pathv[i])) {
-            //cout << results.gl_pathv[i] << endl;
-          } else {
-            if (!args.quiet_flag) cout << results.gl_pathv[i] << " isn't a regular file" << endl;
-          }
+        if (is_regular_file(results.gl_pathv[i])) {
+          if (!args.quiet_flag) cout << results.gl_pathv[i] << endl;
+        } else {
+          if (!args.quiet_flag) cout << results.gl_pathv[i] << " isn't a regular file" << endl;
         }
 
         // call search algorithm

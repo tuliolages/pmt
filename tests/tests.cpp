@@ -75,7 +75,7 @@ int main() {
 			
 				//Executar pmt aproximado com um padrão
 				tStart = clock();
-				system (("bin/pmt -q -e="+editDistances[k]+" -q '"+randomPatterns[i][j]+"' "+target).c_str());
+				system (("bin/pmt -q -e="+editDistances[k]+" '"+randomPatterns[i][j]+"' "+target).c_str());
 				pmtApproxExecTimes[i][j][k] = (double)(clock() - tStart)/CLOCKS_PER_SEC;
 
 				//TODO output suppression not working
@@ -118,7 +118,7 @@ int main() {
 		printf("%.6f ", acc/patsPerLen);
 	}
 
-	printf("\nPMT (APPROX)");
+	/*printf("\nPMT (APPROX)");
 	for (k = 0; k < editCount; k++) {
 		printf("\nWith edit distance=%s\n", editDistances[k].c_str());
 		for (i = 0; i < patLens; i++) {
@@ -128,7 +128,7 @@ int main() {
 			}
 			printf("%.6f ", acc/patsPerLen);
 		}
-	}
+	}*/
 
 	//TODO output suppression not working
 	/*printf("\nAGREP\n");
