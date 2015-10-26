@@ -32,7 +32,7 @@ Se um arquivo com padrões não for especificado, o primeiro argumento após as 
 
 O pmt implementado pelo grupo inclui a implementação dos algoritmos Knuth-Morris-Pratt (KMP),  Boyer-Moore (BM) e Aho-Corasick (AC) para casamento exato de padrões, e Sellers para casamento aproximado. De acordo com os parâmetros fornecidos na execução da aplicação, o algoritmo é escolhido:
 
-- Se uma distância máxima de edição não for especificada ou for especificada com valor 0, o algoritmo BM é escolhido;
-- Se uma distância máxima de edição não for especificada ou for especificada com valor 0, e existirem múltiplos padrões o algoritmo AC é escolhido;
-- Se uma distância máxima de edição não for especificada ou for especificada com valor 0, e a opção -k estiver habilitada o algoritmo KMP é escolhido;
-- Caso contrário, o algoritmo Sellers é escolhido.
+- Se for especificada uma distância máxima de edição maior que zero, o algoritmo Sellers é escolhido;
+- Caso contrário, se mais de um padrão for especificado, o algoritmo AC é escolhido;
+- Caso contrário, se a opção -k estiver habilitada o algoritmo KMP é escolhido;
+- Caso contrário, o algoritmo BM é escolhido.
