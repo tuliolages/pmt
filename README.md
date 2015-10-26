@@ -8,7 +8,7 @@
 - Túlio Paulo Lages da Silva (tpls)
 
 ## Instruções de compilação
-Para compilar o projeto, basta executar o comando `make` ou `make pmt`, e para executá-lo, rodar o executável `pmt` que será gerado no diretório `bin`. Para mais informações sobre o uso do programa, a opção `--help` está disponível.
+Para compilar o projeto, basta executar o comando `make` ou `make pmt`, e para executá-lo, rodar o executável `pmt` que será gerado no diretório `bin`. Para mais informações sobre o uso do programa, a opção `--help` está disponível. Além disso, é possível executar o programa através do comando `make run args="<argumentos>"`, onde *argumentos* são os mesmos argumentos da execução normal do `pmt`, entre aspas.
 
 ## Instruções de execução
 Exemplo de uso: pmt [opções] [padrão] arquivo_de_entrada [outros_arquivos_de_entrada ...]" << endl;
