@@ -24,6 +24,8 @@ Opções:
 
 -k, --kmp - Hablitia a utilização do Knuth-Morris-Pratt (KMP) como algoritmo para casamento exato de padrão.
 
+-q, --quiet - Habilita a opção `quiet` e o algoritmo não imprimirá as saídas (útil para análise de tempo).
+
 Se um arquivo com padrões não for especificado, o primeiro argumento após as opções dado ao `pmt` será interpretado como o único padrão a ser buscado. Vários arquivos de entrada podem ser especificados.
 
 ## Opções de algoritmos
