@@ -22,4 +22,15 @@ Opções:
 
 -h, --help - Mostra uma versão em inglês destas instruções.
 
+-k, --kpm - Hablitia a utilização do Knuth-Morris-Pratt (KMP) como algoritmo para casamento exato de padrão.
+
 Se um arquivo com padrões não for especificado, o primeiro argumento após as opções dado ao `pmt` será interpretado como o único padrão a ser buscado. Vários arquivos de entrada podem ser especificados.
+
+## Opções de algoritmos
+
+O pmt implementado pelo grupo inclui a implementação dos algoritmos Knuth-Morris-Pratt (KMP),  Boyer-Moore (BM) e Aho-Corasick (AC) para casamento exato de padrões, e Sellers para casamento aproximado. De acordo com os parâmetros fornecidos na execução da aplicação, o algoritmo é escolhido:
+
+- Se uma distância máxima de edição não for especificada ou for especificada com valor 0, o algoritmo BM é escolhido;
+- Se uma distância máxima de edição não for especificada ou for especificada com valor 0, e existirem múltiplos padrões o algoritmo AC é escolhido;
+- Se uma distância máxima de edição não for especificada ou for especificada com valor 0, e a opção -k estiver habilitada o algoritmo KMP é escolhido;
+- Caso contrário, o algoritmo Sellers é escolhido.
