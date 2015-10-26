@@ -12,6 +12,7 @@ struct program_args {
   std::vector<char*> patterns;
   bool kmp_flag;
   bool help_flag;
+  bool quiet_flag;
   char** source_text_files;
 };
 
